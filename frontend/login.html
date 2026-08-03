@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập - HỆ THỐNG QUẢN LÝ THƯ VIỆN</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card login-card p-4">
+    <div class="card-body">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">📚 Thư Viện Admin</h3>
+        <p class="text-muted small">Hệ Thống Quản Lý Thư Viện Trường Học</p>
+      </div>
+
+      <!-- Thông báo lỗi (nếu có) -->
+      <div id="alertMessage" class="alert alert-danger d-none" role="alert"></div>
+
+      <!-- Form Đăng nhập -->
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="username" class="form-label font-weight-bold">Tên đăng nhập (Username)</label>
+          <input type="text" class="form-control" id="username" placeholder="Nhập username (mặc định: admin)" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label font-weight-bold">Mật khẩu (Password)</label>
+          <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu (mặc định: admin123)" required>
+        </div>
+
+        <button type="submit" id="btnLogin" class="btn btn-primary w-100 py-2 fw-bold">
+          🔑 Đăng Nhập
+        </button>
+      </form>
+
+      <div class="mt-4 text-center">
+        <small class="text-muted">Tài khoản thử nghiệm mặc định:<br>Username: <code>admin</code> | Password: <code>admin123</code></small>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Kiểm tra nếu đã đăng nhập thì tự động chuyển trang
+    checkAuth();
+
+    // Xử lý sự kiện Submit Form Đăng Nhập
+    const loginForm = document.getElementById('loginForm');
+    const alertMessage = document.getElementById('alertMessage');
+    const btnLogin = document.getElementById('btnLogin');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Chống reload trang
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      // Ẩn thông báo lỗi trước đó
+      alertMessage.classList.add('d-none');
+      btnLogin.disabled = true;
+      btnLogin.innerText = 'Đang xử lý...';
+
+      // Gọi API Login từ backend
+      const res = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: { username, password }
+      });
+
+      btnLogin.disabled = false;
+      btnLogin.innerText = '🔑 Đăng Nhập';
+
+      if (res && res.ok && res.data.success) {
+        // Lưu JWT Token và User Info vào localStorage
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        // Chuyển hướng sang trang Quản lý Sách (books.html)
+        window.location.href = 'books.html';
+      } else {
+        // Hiển thị thông báo lỗi
+        alertMessage.innerText = (res && res.data && res.data.message) || 'Đăng nhập thất bại!';
+        alertMessage.classList.remove('d-none');
+      }
+    });
+  </script>
+</body>
+</html>

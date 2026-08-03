@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Sách - HỆ THỐNG QUẢN LÝ THƯ VIỆN</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar Navigation -->
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar text-white p-3">
+        <div class="d-flex align-items-center mb-4">
+          <h4 class="fw-bold text-primary mb-0">📚 Thư Viện Admin</h4>
+        </div>
+        <hr class="bg-secondary">
+        <ul class="nav flex-column mb-auto">
+          <li class="nav-item mb-1">
+            <a href="books.html" class="nav-link active">
+              📖 Quản lý Sách
+            </a>
+          </li>
+          <li class="nav-item mb-1">
+            <a href="members.html" class="nav-link">
+              👥 Quản lý Thành viên
+            </a>
+          </li>
+          <li class="nav-item mb-1">
+            <a href="borrow.html" class="nav-link">
+              🔄 Mượn / Trả Sách
+            </a>
+          </li>
+          <li class="nav-item mb-1">
+            <a href="stats.html" class="nav-link">
+              📊 Thống kê Dashboard
+            </a>
+          </li>
+        </ul>
+        <hr class="bg-secondary mt-4">
+        <div class="dropdown">
+          <span id="currentUserDisplay" class="d-block small text-light mb-2">Đang tải...</span>
+          <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
+            🚪 Đăng xuất
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        
+        <!-- Header Page -->
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+          <div>
+            <h2 class="h3 fw-bold text-dark mb-1">📖 Quản Lý Sách</h2>
+            <p class="text-muted mb-0">Quản lý kho sách, thông tin đầu sách và số lượng có sẵn trong thư viện</p>
+          </div>
+          <button class="btn btn-primary fw-bold" onclick="openAddModal()">
+            ➕ Thêm Sách Mới
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-9">
+                <input type="text" id="searchInput" class="form-control" placeholder="🔍 Nhập tên sách, tác giả, thể loại hoặc mã ISBN...">
+              </div>
+              <div class="col-md-3">
+                <button id="btnSearch" class="btn btn-secondary w-100 fw-bold">
+                  Tìm kiếm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Books Table -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tên Sách</th>
+                    <th scope="col">Tác Giả</th>
+                    <th scope="col">Thể Loại</th>
+                    <th scope="col">Mã ISBN</th>
+                    <th scope="col">Tổng Số</th>
+                    <th scope="col">Khả Dụng</th>
+                    <th scope="col">Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="booksTableBody">
+                  <!-- Dữ liệu sẽ được load qua Javascript (js/books.js) -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Thêm / Sửa Sách -->
+  <div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="modalTitle">Thêm Sách Mới</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="bookForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="bookTitle" class="form-label fw-bold">Tên Sách <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="bookTitle" required placeholder="Ví dụ: Lập Trình Node.js Cơ Bản">
+            </div>
+            <div class="mb-3">
+              <label for="bookAuthor" class="form-label fw-bold">Tác Giả <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="bookAuthor" required placeholder="Ví dụ: Nguyễn Văn A">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="bookCategory" class="form-label fw-bold">Thể Loại</label>
+                <input type="text" class="form-control" id="bookCategory" placeholder="Ví dụ: Công Nghệ">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="bookIsbn" class="form-label fw-bold">Mã ISBN</label>
+                <input type="text" class="form-control" id="bookIsbn" placeholder="Ví dụ: 978-3-16-148410-0">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="bookQuantity" class="form-label fw-bold">Số Lượng Nhập <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="bookQuantity" min="1" value="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary fw-bold">Lưu Thông Tin</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 Bundle JS CDN (bao gồm Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/books.js"></script>
+</body>
+</html>
