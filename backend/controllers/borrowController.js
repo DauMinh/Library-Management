@@ -76,6 +76,21 @@ exports.createBorrowRecord = async (req, res) => {
       });
     }
 
+    // 2.5. Kiểm tra giới hạn mượn (tối đa 5 quyển đang mượn)
+    const currentBorrowCount = await BorrowRecord.count({
+      where: {
+        member_id: parseInt(member_id),
+        status: 'borrowed'
+      }
+    });
+
+    if (currentBorrowCount >= 5) {
+      return res.status(400).json({
+        success: false,
+        message: `Thành viên "${member.name}" đã đạt giới hạn mượn tối đa 5 quyển. Vui lòng trả sách trước khi mượn thêm!`
+      });
+    }
+
     // 3. Tính ngày hẹn trả (mặc định +14 ngày nếu không truyền)
     let dueDateStr = due_date;
     if (!dueDateStr) {
